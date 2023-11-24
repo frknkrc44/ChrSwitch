@@ -20,6 +20,7 @@ package org.frknkrc44.chrswitch
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
@@ -46,7 +47,12 @@ class BrowserRVAdapter(context: Context) : RecyclerView.Adapter<BrowserRVAdapter
             var resolves = context.packageManager.queryIntentActivities(intent, 0)
 
             resolves = resolves.filter {
-                it.activityInfo.applicationInfo.className == "org.chromium.chrome.browser.base.SplitChromeApplication"
+                if (it.activityInfo.applicationInfo.className == "org.chromium.chrome.browser.base.SplitChromeApplication") {
+                    return@filter true
+                }
+
+                val pkg = context.packageManager.getPackageInfo(it.activityInfo.packageName, PackageManager.GET_META_DATA)
+                pkg.applicationInfo.metaData?.containsKey("org.chromium.content.browser.SANDBOXED_SERVICES_NAME") == true
             }
 
             if (resolves.isNotEmpty()) {
